@@ -42,26 +42,11 @@ upload_to_hdfs() {
         hdfs dfs -mkdir -p $destination_dir
         hdfs dfs -copyFromLocal "$source_file" "$destination"
         if [ $? -eq 0 ]; then
-            file_size=$(hdfs dfs -du -h "$destination" | awk '{print $1}')
-            converted_size=$(convert_size $file_size)
-            log_message "Successfully uploaded $source_file to HDFS at $destination. File size: $converted_size"
+            output_file=$(hdfs dfs -du -h "$destination")
+            log_message "Successfully uploaded from $source_file to HDFS. Output file: $output_file"
         else
             log_message "Failed to upload $source_file to HDFS at $destination"
         fi
-    fi
-}
-
-convert_size() {
-    local size=$1
-
-    if (( size < 1024 )); then
-        echo "${size}B"
-    elif (( size < 1048576 )); then
-        echo "$(awk "BEGIN {printf \"%.2f\", $size / 1024}")KB"
-    elif (( size < 1073741824 )); then
-        echo "$(awk "BEGIN {printf \"%.2f\", $size / 1048576}")MB"
-    else
-        echo "$(awk "BEGIN {printf \"%.2f\", $size / 1073741824}")GB"
     fi
 }
 
