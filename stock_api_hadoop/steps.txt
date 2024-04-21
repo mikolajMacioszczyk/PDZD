@@ -1,0 +1,25 @@
+docker cp ./stockdata-min.csv master:/tmp/stockdata-min.csv
+docker cp ./stockdata.csv master:/tmp/stockdata.csv
+
+hdfs dfs -mkdir /stockdata
+
+hdfs dfs -put /tmp/stockdata-min.csv /stockdata
+
+hdfs dfs -ls /stockdata
+
+nano StockData.java
+
+javac -classpath $HADOOP_CLASSPATH -d stockdata_classes StockData.java
+
+jar -cvf StockData.jar -C stockdata_classes/ .
+
+yarn jar StockData.java StockData /stockdata/stockdata-min.csv /stockdata/min-out
+yarn jar StockData.java StockData /stockdata/stockdata.csv /stockdata/out
+
+hdfs dfs -cat /stockdata/min-out/job1/*
+hdfs dfs -cat /stockdata/min-out/final/*
+hdfs dfs -rm -R /stockdata/min-out
+
+hdfs dfs -cat /stockdata/out/job1/*
+hdfs dfs -cat /stockdata/out/final/*
+hdfs dfs -rm -R /stockdata/out
