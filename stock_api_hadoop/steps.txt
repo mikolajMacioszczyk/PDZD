@@ -4,17 +4,21 @@ docker cp ./stockdata.csv master:/tmp/stockdata.csv
 hdfs dfs -mkdir /stockdata
 
 hdfs dfs -put /tmp/stockdata-min.csv /stockdata
+hdfs dfs -put /tmp/stockdata.csv /stockdata
 
 hdfs dfs -ls /stockdata
 
 nano StockData.java
 
+echo "export HADOOP_CLASSPATH=$(hadoop classpath)" >> ~/.bashrc
+source ~/.bashrc
+
 javac -classpath $HADOOP_CLASSPATH -d stockdata_classes StockData.java
 
 jar -cvf StockData.jar -C stockdata_classes/ .
 
-yarn jar StockData.java StockData /stockdata/stockdata-min.csv /stockdata/min-out
-yarn jar StockData.java StockData /stockdata/stockdata.csv /stockdata/out
+yarn jar StockData.jar StockData /stockdata/stockdata-min.csv /stockdata/min-out
+yarn jar StockData.jar StockData /stockdata/stockdata.csv /stockdata/out
 
 hdfs dfs -cat /stockdata/min-out/job1/*
 hdfs dfs -cat /stockdata/min-out/final/*

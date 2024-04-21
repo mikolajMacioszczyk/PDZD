@@ -22,7 +22,7 @@ with open(output_file, 'w', newline='') as csvfile:
         if stock_data_column in row:
             # for every element of inner table
             for element in row[stock_data_column]:
-                new_row = [row[header] for header in general_header_names]
+                new_row = [row[header].replace(',', '.') for header in general_header_names]
                 new_row.extend(element.values())
                 writer.writerow(new_row)
         else:

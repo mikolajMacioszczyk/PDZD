@@ -41,7 +41,7 @@ public class StockData {
 
             String periodStart = monday.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-            context.write(new Text(data[0]+","+data[2]+","+periodStart), new Text(value + "," + avg + "," + periodStart));
+            context.write(new Text(data[0]+","+data[2].replaceAll("\\s", "_")+","+periodStart), new Text(value + "," + avg + "," + periodStart));
         }
     }
 
@@ -94,9 +94,15 @@ public class StockData {
 
         // Input: symbol,sector,periodStart  avgLow,avgHigh,avgClose,avgOpen,avgVolume,avgPrice
 
-        public void map(Object k, Text value, Context context) throws IOException, InterruptedException {
+        public void map(Object k, Text value, Context context) throws IllegalArgumentException, IOException, InterruptedException {
+            // ZION,Financial Services,2022-12-26      48.07,49.185,48.7625,48.5475,669875.0,0.004501349999999999
             String[] key = value.toString().split("\\s")[0].split(",");
             String data = value.toString().split("\\s")[1];
+
+            if (key.length < 3)
+            {
+                throw new IllegalArgumentException("cannot parse value: " + value.toString());
+            }
 
             context.write(new Text(key[1]+","+key[2]), new Text(data));
         }
