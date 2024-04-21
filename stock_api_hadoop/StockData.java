@@ -55,13 +55,7 @@ public class StockData {
 
             // Output: symbol,sector,periodStart  avgLow,avgHigh,avgClose,avgOpen,avgVolume,avgPrice
 
-            List<Double> avgWeekPrice = new ArrayList<Double>();
-            List<Double> avgWeekVolume = new ArrayList<Double>();
-            List<Double> avgWeekOpen = new ArrayList<Double>();
-            List<Double> avgWeekClose = new ArrayList<Double>();
-            List<Double> avgWeekLow = new ArrayList<Double>();
-            List<Double> avgWeekHigh = new ArrayList<Double>();
-
+            List<List<Double>> weeklyData = new ArrayList<>();
             for (Text val : values) {
                 String[] data = val.toString().split(",");
                 Double low = Double.parseDouble(data[7]);
@@ -71,20 +65,23 @@ public class StockData {
                 Double volume = Double.parseDouble(data[10]);
                 Double avg = Double.parseDouble(data[17]);
 
-                avgWeekPrice.add(avg);
-                avgWeekVolume.add(volume);
-                avgWeekOpen.add(open);
-                avgWeekClose.add(close);
-                avgWeekLow.add(low);
-                avgWeekHigh.add(high);
+                List<Double> week = new ArrayList<>();
+                week.add(avg);
+                week.add(volume);
+                week.add(open);
+                week.add(close);
+                week.add(low);
+                week.add(high);
+
+                weeklyData.add(week);
             }
 
-            double avgPrice = avgWeekPrice.stream().mapToDouble(a -> a).average().getAsDouble();
-            double avgVolume = avgWeekVolume.stream().mapToDouble(a -> a).average().getAsDouble();
-            double avgOpen = avgWeekOpen.stream().mapToDouble(a -> a).average().getAsDouble();
-            double avgClose = avgWeekClose.stream().mapToDouble(a -> a).average().getAsDouble();
-            double avgLow = avgWeekLow.stream().mapToDouble(a -> a).average().getAsDouble();
-            double avgHigh = avgWeekHigh.stream().mapToDouble(a -> a).average().getAsDouble();
+            double avgPrice = weeklyData.stream().mapToDouble(week -> week.get(0)).average().orElse(0);
+            double avgVolume = weeklyData.stream().mapToDouble(week -> week.get(1)).average().orElse(0);
+            double avgOpen = weeklyData.stream().mapToDouble(week -> week.get(2)).average().orElse(0);
+            double avgClose = weeklyData.stream().mapToDouble(week -> week.get(3)).average().orElse(0);
+            double avgLow = weeklyData.stream().mapToDouble(week -> week.get(4)).average().orElse(0);
+            double avgHigh = weeklyData.stream().mapToDouble(week -> week.get(5)).average().orElse(0);
 
             context.write(key, new Text(avgLow + "," + avgHigh + "," + avgClose + "," + avgOpen + "," + avgVolume + "," + avgPrice ));
         }
@@ -96,8 +93,10 @@ public class StockData {
 
         public void map(Object k, Text value, Context context) throws IllegalArgumentException, IOException, InterruptedException {
             // ZION,Financial Services,2022-12-26      48.07,49.185,48.7625,48.5475,669875.0,0.004501349999999999
-            String[] key = value.toString().split("\\s")[0].split(",");
-            String data = value.toString().split("\\s")[1];
+
+            String[] elements = value.toString().split("\\s");
+            String[] key = elements[0].split(",");
+            String data = elements[1];
 
             if (key.length < 3)
             {
@@ -118,13 +117,7 @@ public class StockData {
 
             // Output: sector,periodStart  avgLow,avgHigh,avgClose,avgOpen,avgVolume,avgPrice
 
-            List<Double> avgWeekPrice = new ArrayList<Double>();
-            List<Double> avgWeekVolume = new ArrayList<Double>();
-            List<Double> avgWeekOpen = new ArrayList<Double>();
-            List<Double> avgWeekClose = new ArrayList<Double>();
-            List<Double> avgWeekLow = new ArrayList<Double>();
-            List<Double> avgWeekHigh = new ArrayList<Double>();
-
+            List<List<Double>> weeklyData = new ArrayList<>();
             for (Text val : values) {
                 String[] data = val.toString().split(",");
                 Double low = Double.parseDouble(data[0]);
@@ -134,20 +127,23 @@ public class StockData {
                 Double volume = Double.parseDouble(data[4]);
                 Double price = Double.parseDouble(data[5]);
 
-                avgWeekPrice.add(price);
-                avgWeekVolume.add(volume);
-                avgWeekOpen.add(open);
-                avgWeekClose.add(close);
-                avgWeekLow.add(low);
-                avgWeekHigh.add(high);
+                List<Double> week = new ArrayList<>();
+                week.add(price);
+                week.add(volume);
+                week.add(open);
+                week.add(close);
+                week.add(low);
+                week.add(high);
+
+                weeklyData.add(week);
             }
 
-            double avgPrice = avgWeekPrice.stream().mapToDouble(a -> a).average().getAsDouble();
-            double avgVolume = avgWeekVolume.stream().mapToDouble(a -> a).average().getAsDouble();
-            double avgOpen = avgWeekOpen.stream().mapToDouble(a -> a).average().getAsDouble();
-            double avgClose = avgWeekClose.stream().mapToDouble(a -> a).average().getAsDouble();
-            double avgLow = avgWeekLow.stream().mapToDouble(a -> a).average().getAsDouble();
-            double avgHigh = avgWeekHigh.stream().mapToDouble(a -> a).average().getAsDouble();
+            double avgPrice = weeklyData.stream().mapToDouble(week -> week.get(0)).average().orElse(0);
+            double avgVolume = weeklyData.stream().mapToDouble(week -> week.get(1)).average().orElse(0);
+            double avgOpen = weeklyData.stream().mapToDouble(week -> week.get(2)).average().orElse(0);
+            double avgClose = weeklyData.stream().mapToDouble(week -> week.get(3)).average().orElse(0);
+            double avgLow = weeklyData.stream().mapToDouble(week -> week.get(4)).average().orElse(0);
+            double avgHigh = weeklyData.stream().mapToDouble(week -> week.get(5)).average().orElse(0);
 
             context.write(key, new Text(avgLow + "," + avgHigh + "," + avgClose + "," + avgOpen + "," + avgVolume + "," + avgPrice ));
         }
