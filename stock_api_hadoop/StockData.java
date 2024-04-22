@@ -156,6 +156,36 @@ public class StockData {
         }
     }
 
+    public static Job createJob(Configuration conf, String jobName, Class<? extends Mapper < Object, Text, Text, Text >> mapperClass, Class<? extends Reducer < Text, Text, Text, Text >> reducerClass, String inputPath, String outputPath) throws Exception {
+        Job job = Job.getInstance(conf, jobName);
+        job.setJarByClass(StockData.class);
+        job.setMapperClass(mapperClass);
+        job.setReducerClass(reducerClass);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(Text.class);
+        FileInputFormat.addInputPath(job, new Path(inputPath));
+        FileOutputFormat.setOutputPath(job, new Path(outputPath));
+        return job;
+    }
+
+    static class JobExecutionResult {
+        public final Boolean isSuccess;
+        public final Double elapsedTime;
+
+        public JobExecutionResult(Boolean isSuccess, Double elapsedTime) {
+            this.isSuccess = isSuccess;
+            this.elapsedTime = elapsedTime;
+        }
+    }
+
+    public static JobExecutionResult executeJob(Job job) throws InterruptedException, IOException, ClassNotFoundException {
+        long startTime = System.currentTimeMillis();
+        boolean jobSuccess = job.waitForCompletion(true);
+        long endTime = System.currentTimeMillis();
+        double elapsedTime = (endTime - startTime) * 1.0 / 1000;
+        return new JobExecutionResult(jobSuccess, elapsedTime);
+    }
+
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
         String inputPath = args[0];
@@ -165,52 +195,32 @@ public class StockData {
             outputPath = outputPath.substring(0, outputPath.length() - 1);
         }
 
-        Job job1 = Job.getInstance(conf, "Stock Data Job 1");
-        job1.setJarByClass(StockData.class);
-        job1.setMapperClass(StockDataMapper1.class);
-        job1.setReducerClass(StockDataReducer1.class);
-        job1.setOutputKeyClass(Text.class);
-        job1.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job1, new Path(inputPath));
-        FileOutputFormat.setOutputPath(job1, new Path(outputPath + "/job1"));
-
-        boolean job1Success = false;
-
+        Job job1 = createJob(conf, "Stock Data Job 1", StockDataMapper1.class, StockDataReducer1.class, inputPath, outputPath + "/job1");
         try {
-            long startTime = System.currentTimeMillis();
-            job1Success = job1.waitForCompletion(true);
-            long endTime = System.currentTimeMillis();
-            double elapsedTime = (endTime - startTime) * 1.0 / 1000;
-            if (job1Success) {
-                log("Job 1 completed successfully in " + elapsedTime + " s", logFileName);
-                Job job2 = Job.getInstance(conf, "Stock Data Job 2");
-                job2.setJarByClass(StockData.class);
-                job2.setMapperClass(StockDataMapper2.class);
-                job2.setReducerClass(StockDataReducer2.class);
-                job2.setOutputKeyClass(Text.class);
-                job2.setOutputValueClass(Text.class);
-                FileInputFormat.addInputPath(job2, new Path(outputPath + "/job1"));
-                FileOutputFormat.setOutputPath(job2, new Path(outputPath + "/final"));
-
-                boolean job2Success = false;
+            JobExecutionResult job1Result = executeJob(job1);
+            if (job1Result.isSuccess) {
+                log("Job 1 completed successfully in " + job1Result.elapsedTime + " s", logFileName);
+                Job job2 = createJob(conf, "Stock Data Job 2", StockDataMapper2.class, StockDataReducer2.class, outputPath + "/job1", outputPath + "/final");
 
                 try {
-                    long startTime2 = System.currentTimeMillis();
-                    job2Success = job2.waitForCompletion(true);
-                    long endTime2 = System.currentTimeMillis();
-                    double elapsedTime2 = (endTime2 - startTime2) * 1.0 / 1000;
-                    if (job2Success) {
-                        log("Job 2 completed successfully in " + elapsedTime2 + " s", logFileName);
+                    JobExecutionResult job2Result = executeJob(job2);
+
+                    if (job2Result.isSuccess) {
+                        log("Job 2 completed successfully in " + job2Result.elapsedTime + " s", logFileName);
+                        System.exit(0);
                     } else {
-                        log("Job 2 failed after " + elapsedTime2 + " s", logFileName);
+                        log("Job 2 failed after " + job2Result.elapsedTime + " s", logFileName);
                     }
                 } catch (Exception ex) {
                     log("Error while executing job 2. Message: " + ex.getMessage(), logFileName);
                 }
+                finally
+                {
+                    System.exit(1);
+                }
 
-                System.exit(job2Success ? 0 : 1);
             } else {
-                log("Job 1 failed after " + elapsedTime + " s", logFileName);
+                log("Job 1 failed after " + job1Result.elapsedTime + " s", logFileName);
             }
         } catch (Exception ex) {
             log("Error while executing job 1. Message: " + ex.getMessage(), logFileName);
