@@ -17,8 +17,8 @@ javac -classpath $HADOOP_CLASSPATH -d stockdata_classes StockData.java
 
 jar -cvf StockData.jar -C stockdata_classes/ .
 
-yarn jar StockData.jar StockData /stockdata/stockdata-min.csv /stockdata/min-out
-yarn jar StockData.jar StockData /stockdata/stockdata.csv /stockdata/out
+yarn jar StockData.jar StockData /stockdata/stockdata-min.csv /stockdata/min-out ./hadoop_logs/data_log
+yarn jar StockData.jar StockData /stockdata/stockdata.csv /stockdata/out ./hadoop_logs/data_log
 
 hdfs dfs -cat /stockdata/min-out/job1/*
 hdfs dfs -cat /stockdata/min-out/final/*
