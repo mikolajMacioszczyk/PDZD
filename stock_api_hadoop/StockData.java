@@ -29,8 +29,10 @@ public class StockData {
         public void map(Object key, Text value, Context context) throws IOException,
         InterruptedException {
             String[] data = value.toString().split(",");
+            String symbol = data[0];
+            String sector = data[2].replaceAll("\\s", "_");
 
-            if (data[0].equals("symbol")) {
+            if (symbol.equals("symbol") || sector.equals("")) {
                 return;
             }
 
@@ -45,7 +47,7 @@ public class StockData {
 
             String periodStart = monday.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-            context.write(new Text(data[0] + "," + data[2].replaceAll("\\s", "_") + "," + periodStart), new Text(value + "," + avg + "," + periodStart));
+            context.write(new Text(symbol + "," + sector + "," + periodStart), new Text(value + "," + avg + "," + periodStart));
         }
     }
 
