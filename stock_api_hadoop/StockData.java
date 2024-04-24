@@ -34,8 +34,8 @@ public class StockData {
                 return;
             }
 
-            double avg = (Double.parseDouble(data[6]) + Double.parseDouble(data[7])) / 2;
-            LocalDate localDate = LocalDate.parse(data[4], DateTimeFormatter.ISO_LOCAL_DATE);
+            double avg = (Double.parseDouble(data[21]) + Double.parseDouble(data[22])) / 2;
+            LocalDate localDate = LocalDate.parse(data[19], DateTimeFormatter.ISO_LOCAL_DATE);
 
             DayOfWeek dayOfWeek = localDate.getDayOfWeek();
 
@@ -63,12 +63,12 @@ public class StockData {
             List < List < Double >> weeklyData = new ArrayList < > ();
             for (Text val: values) {
                 String[] data = val.toString().split(",");
-                Double low = Double.parseDouble(data[7]);
-                Double high = Double.parseDouble(data[6]);
-                Double close = Double.parseDouble(data[8]);
-                Double open = Double.parseDouble(data[5]);
-                Double volume = Double.parseDouble(data[10]);
-                Double avg = Double.parseDouble(data[17]);
+                Double low = Double.parseDouble(data[22]);
+                Double high = Double.parseDouble(data[21]);
+                Double close = Double.parseDouble(data[23]);
+                Double open = Double.parseDouble(data[20]);
+                Double volume = Double.parseDouble(data[25]);
+                Double avg = Double.parseDouble(data[32]);
 
                 List < Double > week = new ArrayList < > ();
                 week.add(avg);
