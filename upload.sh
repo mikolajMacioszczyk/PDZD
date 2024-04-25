@@ -57,3 +57,5 @@ for file in "$source_dir"/*; do
         upload_to_hdfs "$file" "$destination_dir/$filename"
     fi
 done
+
+hdfs dfs -setrep -R -w 3 $destination_dir
