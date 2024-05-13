@@ -2,3 +2,5 @@ node_modules
 stock_data_conversion/stockdata.json
 stock_data_conversion/stockdata_2.csv
 stock_data_conversion/stockdata.csv
+
+cars_hadoop/carsdata.csv
