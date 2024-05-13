@@ -1,0 +1,15 @@
+docker cp ./carsdata-min.csv master:/data/carsdata-min.csv
+docker cp ./carsdata.csv master:/data/carsdata.csv
+
+hdfs dfs -mkdir /data
+
+hdfs dfs -put /data/stockdata-min.csv /data
+hdfs dfs -put /data/stockdata.csv /data
+
+hdfs dfs -ls /data
+
+pig -param input_data=/data/carsdata.csv -param job_1_output_path=/data/carsdata-pig-out/job1 -param final_output_path=/data/carsdata-pig-out/final CarsData.pig
+
+hdfs dfs -cat /data/carsdata-pig-out/job1/*
+hdfs dfs -cat /data/carsdata-pig-out/final/*
+hdfs dfs -rm -R /data/carsdata-pig-out/
