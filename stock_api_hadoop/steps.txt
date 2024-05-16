@@ -8,6 +8,8 @@ hdfs dfs -put /tmp/stockdata.csv /stockdata
 
 hdfs dfs -ls /stockdata
 
+# Map Reduce
+
 nano StockData.java
 
 echo "export HADOOP_CLASSPATH=$(hadoop classpath)" >> ~/.bashrc
@@ -27,3 +29,12 @@ hdfs dfs -rm -R /stockdata/min-out
 hdfs dfs -cat /stockdata/out/job1/*
 hdfs dfs -cat /stockdata/out/final/*
 hdfs dfs -rm -R /stockdata/out
+
+
+# Pig
+
+pig -param input_data=/data/stockdata.csv -param job_1_output_path=/data/stockdata-pig-out/job1 -param final_output_path=/data/stockdata-pig-out/final StockData.pig
+
+hdfs dfs -cat /data/stockdata-pig-out/job1/*
+hdfs dfs -cat /data/stockdata-pig-out/final/*
+hdfs dfs -rm -R /data/stockdata-pig-out/

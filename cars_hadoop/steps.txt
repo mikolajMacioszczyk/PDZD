@@ -3,8 +3,8 @@ docker cp ./carsdata.csv master:/data/carsdata.csv
 
 hdfs dfs -mkdir /data
 
-hdfs dfs -put /data/stockdata-min.csv /data
-hdfs dfs -put /data/stockdata.csv /data
+hdfs dfs -put /data/carsdata-min.csv /data
+hdfs dfs -put /data/carsdata.csv /data
 
 hdfs dfs -ls /data
 
