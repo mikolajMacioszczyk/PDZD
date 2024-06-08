@@ -1,6 +1,17 @@
--- Run with: hive -hiveconf input_data=/data/stockdata.csv -hiveconf job_1_output_path=/data/stockdata-hive-out/job1 -hiveconf final_output_path=/data/stockdata-hive-out/final
+-- move stockdata to separate directory
+-- hdfs dfs -mkdir -p /data/stockdata
+-- hdfs dfs -mv /data/stockdata.csv /data/stockdata/
+-- Run with: hive -hiveconf input_data=/data/stockdata -hiveconf job_1_output_path=/data/stockdata-hive-out/job1 -hiveconf final_output_path=/data/stockdata-hive-out/final -f StockData.hql
 
 -- PROCESS 1
+
+DROP TABLE IF EXISTS stockdata_raw;
+DROP TABLE IF EXISTS stockdata_filtered;
+DROP TABLE IF EXISTS stockdata_transformed;
+DROP TABLE IF EXISTS process_1_result;
+DROP TABLE IF EXISTS job_1_output;
+DROP TABLE IF EXISTS process_2_result;
+DROP TABLE IF EXISTS final_output;
 
 -- Create an external table to load the data
 CREATE EXTERNAL TABLE stockdata_raw (
@@ -8,7 +19,7 @@ CREATE EXTERNAL TABLE stockdata_raw (
     name STRING, 
     sector STRING, 
     industry STRING, 
-    exchange STRING, 
+    `exchange` STRING, 
     exchangeShortName STRING, 
     volAvg DOUBLE, 
     mktCap DOUBLE, 
