@@ -65,7 +65,7 @@ CREATE TABLE stockdata_transformed AS
 SELECT 
     symbol, 
     LOWER(REPLACE(sector, ' ', '_')) AS sector,
-    TO_DATE(DATE_SUB(TO_DATE(date_str, 'yyyy-MM-dd'), pmod(DATEDIFF(TO_DATE(date_str, 'yyyy-MM-dd'), '1900-01-01'), 7))) AS periodStart,
+    TO_DATE(DATE_SUB(TO_DATE(date_str), pmod(DATEDIFF(TO_DATE(date_str), '1900-01-01'), 7))) AS periodStart,
     open, 
     high, 
     low, 
