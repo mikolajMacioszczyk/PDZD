@@ -7,7 +7,6 @@
 
 DROP TABLE IF EXISTS stockdata_raw;
 DROP TABLE IF EXISTS process_1_result;
-DROP TABLE IF EXISTS process_2_result;
 DROP TABLE IF EXISTS final_output;
 
 -- Create an external table to load the data
@@ -74,19 +73,6 @@ GROUP BY
 
 -- PROCESS 2
 
-CREATE TABLE process_2_result AS
-SELECT 
-    sector,
-    periodStart,
-    AVG(avgLow) AS avgLow,
-    AVG(avgHigh) AS avgHigh,
-    AVG(avgClose) AS avgClose,
-    AVG(avgOpen) AS avgOpen,
-    AVG(avgVolume) AS avgVolume,
-    AVG(avgPrice) AS avgPrice
-FROM process_1_result
-GROUP BY sector, periodStart;
-
 CREATE EXTERNAL TABLE final_output (
     sector STRING,
     periodStart DATE,
@@ -103,4 +89,14 @@ STORED AS TEXTFILE
 LOCATION '${hiveconf:final_output_path}';
 
 INSERT INTO TABLE final_output
-SELECT * FROM process_2_result;
+SELECT 
+    sector,
+    periodStart,
+    AVG(avgLow) AS avgLow,
+    AVG(avgHigh) AS avgHigh,
+    AVG(avgClose) AS avgClose,
+    AVG(avgOpen) AS avgOpen,
+    AVG(avgVolume) AS avgVolume,
+    AVG(avgPrice) AS avgPrice
+FROM process_1_result
+GROUP BY sector, periodStart;
