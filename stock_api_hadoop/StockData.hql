@@ -7,7 +7,7 @@
 
 DROP TABLE IF EXISTS stockdata_raw;
 DROP TABLE IF EXISTS process_1_result;
--- DROP TABLE IF EXISTS job_1_output;
+DROP TABLE IF EXISTS process_2_result;
 DROP TABLE IF EXISTS final_output;
 
 -- Create an external table to load the data
@@ -72,29 +72,21 @@ GROUP BY
     LOWER(REPLACE(sector, ' ', '_')), 
     TO_DATE(DATE_SUB(TO_DATE(date_str), pmod(DATEDIFF(TO_DATE(date_str), '1900-01-01'), 7)));
 
--- Store the result (note: in Hive, this usually means creating another table or storing as an external file)
--- CREATE EXTERNAL TABLE job_1_output (
---     symbol STRING,
---     sector STRING,
---     periodStart DATE,
---     avgLow DOUBLE,
---     avgHigh DOUBLE,
---     avgClose DOUBLE,
---     avgOpen DOUBLE,
---     avgVolume DOUBLE,
---     avgPrice DOUBLE
--- )
--- ROW FORMAT DELIMITED
--- FIELDS TERMINATED BY ','
--- STORED AS TEXTFILE
--- LOCATION '${hiveconf:job_1_output_path}';
-
--- INSERT INTO TABLE job_1_output
--- SELECT * FROM process_1_result;
-
 -- PROCESS 2
 
--- Store the result (note: in Hive, this usually means creating another table or storing as an external file)
+CREATE TABLE process_2_result AS
+SELECT 
+    sector,
+    periodStart,
+    AVG(avgLow) AS avgLow,
+    AVG(avgHigh) AS avgHigh,
+    AVG(avgClose) AS avgClose,
+    AVG(avgOpen) AS avgOpen,
+    AVG(avgVolume) AS avgVolume,
+    AVG(avgPrice) AS avgPrice
+FROM process_1_result
+GROUP BY sector, periodStart;
+
 CREATE EXTERNAL TABLE final_output (
     sector STRING,
     periodStart DATE,
@@ -110,16 +102,5 @@ FIELDS TERMINATED BY ','
 STORED AS TEXTFILE
 LOCATION '${hiveconf:final_output_path}';
 
--- Group by sector and periodStart and calculate average values
 INSERT INTO TABLE final_output
-SELECT 
-    sector,
-    periodStart,
-    AVG(avgLow) AS avgLow,
-    AVG(avgHigh) AS avgHigh,
-    AVG(avgClose) AS avgClose,
-    AVG(avgOpen) AS avgOpen,
-    AVG(avgVolume) AS avgVolume,
-    AVG(avgPrice) AS avgPrice
-FROM process_1_result
-GROUP BY sector, periodStart;
+SELECT * FROM process_2_result;
