@@ -1,5 +1,3 @@
-# change column name "date" to "dateCol" :)
-
 from pyspark.sql import SparkSession
 
 spark = SparkSession.builder \
@@ -7,7 +5,7 @@ spark = SparkSession.builder \
     .getOrCreate()
 
 input_data = '/data/carsdata.csv'
-intermediate_output_path = '/data/carsdata-spark-out/intermediate'
+intermediate_output_path = '/data/carsdata-spark-out/job1'
 final_output_path = '/data/carsdata-spark-out/final'
 
 data = spark.read.csv(input_data, header=True, inferSchema=True, sep='\t')
@@ -25,6 +23,7 @@ filtered_data.write.csv(intermediate_output_path, header=True, mode='overwrite')
 filtered_data.createOrReplaceTempView("cars_filtered_data")
 
 transformed_data = spark.sql("""
+    EXPLAIN EXTENDED
     WITH cte AS (
         SELECT
             CAST(purchaseDate AS DATE) AS purchaseDate,
@@ -44,6 +43,8 @@ transformed_data = spark.sql("""
         END AS WearAndTear
     FROM cte
 """)
+
+# transformed_data.show(truncate = False)
 
 transformed_data.write.csv(final_output_path, header=True, mode='overwrite')
 

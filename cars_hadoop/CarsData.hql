@@ -62,6 +62,7 @@ SELECT
 FROM cte;
 
 -- Store the final result
+-- EXPLAIN
 CREATE EXTERNAL TABLE cars_final_result (
     purchaseDate DATE,
     modelYear INT,
