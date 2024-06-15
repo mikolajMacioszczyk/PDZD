@@ -1,8 +1,9 @@
 # change column name "date" to "dateCol" :)
 
 from pyspark.sql import SparkSession
+import time
 
-# Initialize Spark session
+
 spark = SparkSession.builder \
     .appName("StockDataProcessing") \
     .getOrCreate()
@@ -11,6 +12,8 @@ spark = SparkSession.builder \
 input_data = '/data/stockdata.csv'
 job_1_output_path = '/data/stockdata-spark-out/job1'
 final_output_path = '/data/stockdata-spark-out/final'
+
+process_1_start_time = time.time()
 
 # Load data
 data = spark.read.csv(input_data, header=True, inferSchema=True)
@@ -65,8 +68,12 @@ grouped_process_1_data = spark.sql("""
     GROUP BY symbol, sector, periodStart
 """)
 
+process_1_end_time = time.time()
+
 # Store the result
 grouped_process_1_data.write.csv(job_1_output_path, header=True, mode='overwrite')
+
+process_2_start_time = time.time()
 
 # Create a temporary view for grouped process 1 data
 grouped_process_1_data.createOrReplaceTempView("grouped_process_1_data")
@@ -88,6 +95,13 @@ grouped_process_2_data = spark.sql("""
 
 # Store the result
 grouped_process_2_data.write.csv(final_output_path, header=True, mode='overwrite')
+
+process_2_end_time = time.time()
+
+process_1_execution_time = process_1_end_time - process_1_start_time
+print(f"Process 1 exec time: {process_1_execution_time}")
+process_2_execution_time = process_2_end_time - process_2_start_time
+print(f"Process 2 exec time: {process_2_execution_time}")
 
 # Stop Spark session
 spark.stop()
